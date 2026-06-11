@@ -1,392 +1,867 @@
-const btnFonte = document.getElementById("btnFonte");
-const btnTopo = document.getElementById("btnTopo");
-
-const umidade = document.getElementById("umidade");
-const temperatura = document.getElementById("temperatura");
-const folhas = document.getElementById("folhas");
-const preservacao = document.getElementById("preservacao");
-
-const valorUmidade = document.getElementById("valorUmidade");
-const valorTemperatura = document.getElementById("valorTemperatura");
-const valorFolhas = document.getElementById("valorFolhas");
-const valorPreservacao = document.getElementById("valorPreservacao");
-
-const painelUmidade = document.getElementById("painelUmidade");
-const painelTemperatura = document.getElementById("painelTemperatura");
-const painelFolhas = document.getElementById("painelFolhas");
-const painelPreservacao = document.getElementById("painelPreservacao");
-
-const risco = document.getElementById("risco");
-const barraRisco = document.getElementById("barraRisco");
-const tituloResultado = document.getElementById("tituloResultado");
-const textoResultado = document.getElementById("textoResultado");
-const listaRecomendacoes = document.getElementById("listaRecomendacoes");
-
-const resetar = document.getElementById("resetar");
-const salvarAnalise = document.getElementById("salvarAnalise");
-const historicoLista = document.getElementById("historicoLista");
-const historicoVazio = document.getElementById("historicoVazio");
-
-const pergunta = document.getElementById("pergunta");
-const opcoes = document.getElementById("opcoes");
-const feedbackQuiz = document.getElementById("feedbackQuiz");
-const quizProgresso = document.getElementById("quizProgresso");
-const quizPontos = document.getElementById("quizPontos");
-const proximaPergunta = document.getElementById("proximaPergunta");
-const reiniciarQuiz = document.getElementById("reiniciarQuiz");
-
-const nomeEquipe = document.getElementById("nomeEquipe");
-const acaoSustentavel = document.getElementById("acaoSustentavel");
-const gerarRelatorio = document.getElementById("gerarRelatorio");
-const textoRelatorio = document.getElementById("textoRelatorio");
-
-let contadorAnalises = 0;
-let perguntaAtual = 0;
-let pontos = 0;
-let respondeu = false;
-
-const perguntasQuiz = [
-  {
-    pergunta: "Qual atitude ajuda a proteger o solo da erosão?",
-    opcoes: [
-      "Retirar toda a vegetação do terreno",
-      "Usar cobertura vegetal e rotação de culturas",
-      "Irrigar sem controle todos os dias",
-      "Aplicar defensivo sem monitoramento"
-    ],
-    correta: 1
-  },
-  {
-    pergunta: "Por que o monitoramento da lavoura é importante?",
-    opcoes: [
-      "Porque evita qualquer tipo de trabalho no campo",
-      "Porque ajuda a identificar problemas antes que se espalhem",
-      "Porque elimina totalmente a necessidade de água",
-      "Porque aumenta o desperdício de recursos"
-    ],
-    correta: 1
-  },
-  {
-    pergunta: "O uso consciente da água na agricultura ajuda a:",
-    opcoes: [
-      "Preservar recursos naturais e reduzir desperdícios",
-      "Secar nascentes e rios",
-      "Aumentar a erosão",
-      "Diminuir a produtividade sempre"
-    ],
-    correta: 0
-  },
-  {
-    pergunta: "O que significa produção sustentável?",
-    opcoes: [
-      "Produzir sem pensar no futuro",
-      "Produzir mais destruindo o ambiente",
-      "Equilibrar produtividade e preservação ambiental",
-      "Usar recursos naturais sem controle"
-    ],
-    correta: 2
-  },
-  {
-    pergunta: "Como a tecnologia pode ajudar o produtor rural?",
-    opcoes: [
-      "Gerando dados para melhorar decisões no campo",
-      "Substituindo totalmente a natureza",
-      "Impedindo qualquer plantio",
-      "Aumentando o desperdício de água"
-    ],
-    correta: 0
-  }
-];
-
-function limitar(valor, minimo, maximo) {
-  return Math.max(minimo, Math.min(maximo, valor));
+:root {
+  --verde: #1f8a45;
+  --verde-escuro: #0d3f24;
+  --verde-claro: #70c486;
+  --amarelo: #f4c542;
+  --terra: #8a5a2b;
+  --fundo: #f3f8ef;
+  --fundo-claro: #ffffff;
+  --card: #ffffff;
+  --texto: #1f2a24;
+  --texto-suave: #5a6a60;
+  --borda: rgba(31, 138, 69, 0.18);
+  --sombra: rgba(13, 63, 36, 0.14);
+  --vermelho: #b42318;
+  --laranja: #e8782e;
 }
 
-function calcularRisco() {
-  const u = Number(umidade.value);
-  const t = Number(temperatura.value);
-  const f = Number(folhas.value);
-  const p = Number(preservacao.value);
-
-  let riscoUmidade = 0;
-
-  if (u < 45) {
-    riscoUmidade = (45 - u) * 1.35;
-  } else if (u > 85) {
-    riscoUmidade = (u - 85) * 1.1;
-  }
-
-  let riscoTemperatura = 0;
-
-  if (t > 30) {
-    riscoTemperatura = (t - 30) * 4;
-  } else if (t < 15) {
-    riscoTemperatura = (15 - t) * 2;
-  }
-
-  const riscoFolhas = f * 0.55;
-  const riscoPreservacao = (100 - p) * 0.25;
-
-  const total = Math.round(
-    limitar(riscoUmidade + riscoTemperatura + riscoFolhas + riscoPreservacao, 0, 100)
-  );
-
-  return total;
+body.escuro {
+  --fundo: #111a14;
+  --fundo-claro: #16241a;
+  --card: #1b2b20;
+  --texto: #f3fff5;
+  --texto-suave: #c4d8c8;
+  --borda: rgba(112, 196, 134, 0.25);
+  --sombra: rgba(0, 0, 0, 0.3);
 }
 
-function obterNivel(valor) {
-  if (valor >= 70) {
-    return {
-      titulo: "Risco alto",
-      classe: "selo-alto",
-      cor: "#b42318",
-      texto: "A lavoura apresenta sinais de alerta. É recomendado monitorar com urgência, verificar folhas, umidade e adotar ações de proteção ambiental."
-    };
-  }
-
-  if (valor >= 40) {
-    return {
-      titulo: "Risco moderado",
-      classe: "selo-moderado",
-      cor: "#e8782e",
-      texto: "A lavoura exige atenção. Continue acompanhando os dados e aplique medidas preventivas para evitar perdas."
-    };
-  }
-
-  return {
-    titulo: "Risco baixo",
-    classe: "selo-baixo",
-    cor: "#246b38",
-    texto: "A lavoura está em condição favorável. Mantenha o monitoramento e as boas práticas sustentáveis."
-  };
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-function criarRecomendacoes() {
-  const u = Number(umidade.value);
-  const t = Number(temperatura.value);
-  const f = Number(folhas.value);
-  const p = Number(preservacao.value);
-
-  const recomendacoes = [];
-
-  if (u < 45) {
-    recomendacoes.push("Aumentar o cuidado com a irrigação e evitar desperdício de água.");
-  }
-
-  if (u > 85) {
-    recomendacoes.push("Verificar excesso de umidade para evitar doenças e encharcamento.");
-  }
-
-  if (t > 30) {
-    recomendacoes.push("Monitorar o estresse térmico das plantas nos horários mais quentes.");
-  }
-
-  if (f > 45) {
-    recomendacoes.push("Observar manchas, folhas amareladas ou sinais de pragas antes de aplicar defensivos.");
-  }
-
-  if (p < 55) {
-    recomendacoes.push("Preservar áreas verdes, nascentes e melhorar a proteção do solo.");
-  }
-
-  if (recomendacoes.length === 0) {
-    recomendacoes.push("Continuar o monitoramento e manter as práticas sustentáveis já adotadas.");
-  }
-
-  return recomendacoes;
+html {
+  scroll-behavior: smooth;
 }
 
-function atualizarSimulador() {
-  const u = Number(umidade.value);
-  const t = Number(temperatura.value);
-  const f = Number(folhas.value);
-  const p = Number(preservacao.value);
-
-  valorUmidade.textContent = u + "%";
-  valorTemperatura.textContent = t + "°C";
-  valorFolhas.textContent = f + "%";
-  valorPreservacao.textContent = p + "%";
-
-  painelUmidade.textContent = u + "%";
-  painelTemperatura.textContent = t + "°C";
-  painelFolhas.textContent = f + "%";
-  painelPreservacao.textContent = p + "%";
-
-  const riscoCalculado = calcularRisco();
-  const nivel = obterNivel(riscoCalculado);
-
-  risco.textContent = riscoCalculado;
-  barraRisco.style.width = riscoCalculado + "%";
-  barraRisco.style.background = nivel.cor;
-  tituloResultado.textContent = nivel.titulo;
-  textoResultado.textContent = nivel.texto;
-
-  const recomendacoes = criarRecomendacoes();
-
-  listaRecomendacoes.innerHTML = "";
-
-  recomendacoes.forEach(function (item) {
-    const li = document.createElement("li");
-    li.textContent = item;
-    listaRecomendacoes.appendChild(li);
-  });
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  line-height: 1.6;
 }
 
-function reiniciarAnalise() {
-  umidade.value = 50;
-  temperatura.value = 25;
-  folhas.value = 30;
-  preservacao.value = 60;
-  atualizarSimulador();
+body.fonte-grande {
+  font-size: 1.16rem;
 }
 
-function salvarHistoricoAnalise() {
-  const riscoAtual = Number(risco.textContent);
-  const nivel = obterNivel(riscoAtual);
+.container {
+  width: min(1120px, 92%);
+  margin: 0 auto;
+}
 
-  contadorAnalises++;
+.cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--borda);
+  backdrop-filter: blur(12px);
+}
 
-  if (historicoVazio) {
-    historicoVazio.style.display = "none";
+body.escuro .cabecalho {
+  background: rgba(17, 26, 20, 0.95);
+}
+
+.area-menu {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.logo {
+  color: var(--verde-escuro);
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+
+body.escuro .logo {
+  color: var(--verde-claro);
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.menu a {
+  text-decoration: none;
+  color: var(--texto);
+  font-weight: 700;
+  font-size: 0.93rem;
+  transition: 0.25s;
+}
+
+.menu a:hover {
+  color: var(--verde);
+}
+
+.botoes-topo {
+  display: flex;
+  gap: 8px;
+}
+
+.botao-mini {
+  border: 0;
+  background: var(--verde);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.botao-mini:hover {
+  transform: translateY(-2px);
+  background: var(--verde-escuro);
+}
+
+.hero {
+  min-height: 650px;
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(112, 196, 134, 0.35), transparent 35%),
+    linear-gradient(135deg, #eaf8e4, #fff8df);
+}
+
+body.escuro .hero {
+  background:
+    radial-gradient(circle at top left, rgba(31, 138, 69, 0.35), transparent 35%),
+    linear-gradient(135deg, #111a14, #1d2b1d);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 38px;
+  align-items: center;
+}
+
+.selo,
+.subtitulo {
+  display: inline-block;
+  background: rgba(31, 138, 69, 0.12);
+  color: var(--verde);
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+.subtitulo {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.subtitulo.claro {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  line-height: 1.05;
+  color: var(--verde-escuro);
+  margin-bottom: 20px;
+}
+
+body.escuro .hero h1 {
+  color: #ffffff;
+}
+
+.hero p {
+  max-width: 720px;
+  color: var(--texto-suave);
+  font-size: 1.18rem;
+  margin-bottom: 28px;
+}
+
+.grupo-botoes {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.botao {
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 22px;
+  text-decoration: none;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.25s;
+}
+
+.botao.principal {
+  background: var(--verde);
+  color: #ffffff;
+}
+
+.botao.principal:hover {
+  background: var(--verde-escuro);
+  transform: translateY(-2px);
+}
+
+.botao.secundario {
+  background: var(--card);
+  color: var(--verde);
+  border: 1px solid var(--borda);
+}
+
+.botao.secundario:hover {
+  background: rgba(31, 138, 69, 0.08);
+  transform: translateY(-2px);
+}
+
+.botao.pequeno {
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  margin-top: 14px;
+}
+
+.robo-card {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 30px;
+  padding: 34px;
+  text-align: center;
+  box-shadow: 0 18px 45px var(--sombra);
+}
+
+.robo-card h2 {
+  color: var(--verde-escuro);
+  margin: 18px 0 10px;
+}
+
+body.escuro .robo-card h2 {
+  color: #ffffff;
+}
+
+.robo-card p {
+  color: var(--texto-suave);
+}
+
+.robo {
+  width: 150px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.antena {
+  width: 8px;
+  height: 36px;
+  background: var(--verde);
+  margin: 0 auto;
+  border-radius: 999px;
+  position: relative;
+}
+
+.antena::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: var(--amarelo);
+  border-radius: 50%;
+  position: absolute;
+  top: -12px;
+  left: -5px;
+}
+
+.cabeca {
+  width: 120px;
+  height: 78px;
+  background: linear-gradient(135deg, var(--verde), var(--verde-claro));
+  margin: 0 auto;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 8px 0 var(--verde-escuro);
+}
+
+.cabeca span {
+  width: 18px;
+  height: 18px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.corpo {
+  width: 140px;
+  height: 92px;
+  background: var(--terra);
+  margin: 12px auto 0;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.corpo div {
+  width: 34px;
+  height: 44px;
+  background: var(--amarelo);
+  border-radius: 12px;
+}
+
+.rodas {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -6px;
+}
+
+.rodas span {
+  width: 44px;
+  height: 44px;
+  background: var(--verde-escuro);
+  border: 7px solid var(--verde-claro);
+  border-radius: 50%;
+}
+
+.secao {
+  padding: 82px 0;
+}
+
+.secao h2 {
+  text-align: center;
+  color: var(--verde-escuro);
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 16px;
+}
+
+body.escuro .secao h2 {
+  color: #ffffff;
+}
+
+.texto-central {
+  max-width: 850px;
+  margin: 0 auto 36px;
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 1.07rem;
+}
+
+.claro-texto {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cards,
+.creditos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.card,
+.controles,
+.resultado,
+.historico,
+.recomendacoes,
+.quiz-card,
+.formulario,
+.observacao-final {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 14px 34px var(--sombra);
+}
+
+.card span {
+  font-size: 2.7rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.card h3,
+.passos h3,
+.historico h3,
+.recomendacoes h3,
+.observacao-final h3 {
+  color: var(--verde-escuro);
+  margin-bottom: 10px;
+}
+
+body.escuro .card h3,
+body.escuro .passos h3,
+body.escuro .historico h3,
+body.escuro .recomendacoes h3,
+body.escuro .observacao-final h3 {
+  color: #ffffff;
+}
+
+.card p,
+.passos p,
+.historico p,
+.recomendacoes li,
+.observacao-final p {
+  color: var(--texto-suave);
+}
+
+.fundo-verde {
+  background:
+    linear-gradient(135deg, rgba(13, 63, 36, 0.97), rgba(31, 138, 69, 0.95)),
+    radial-gradient(circle at top right, rgba(244, 197, 66, 0.28), transparent 35%);
+  color: #ffffff;
+}
+
+.fundo-verde h2 {
+  color: #ffffff;
+}
+
+.fundo-claro {
+  background: var(--fundo-claro);
+}
+
+.passos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.passos article {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.passos strong {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--amarelo);
+  color: var(--verde-escuro);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin-bottom: 14px;
+}
+
+.passos h3,
+.passos p {
+  color: #ffffff;
+}
+
+.simulador-grid {
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.controles label {
+  display: block;
+  color: var(--verde-escuro);
+  font-weight: 900;
+  margin-bottom: 22px;
+}
+
+body.escuro .controles label {
+  color: #ffffff;
+}
+
+.controles strong {
+  color: var(--verde);
+}
+
+.controles select,
+.formulario select,
+.formulario input {
+  width: 100%;
+  border: 1px solid var(--borda);
+  background: var(--fundo-claro);
+  color: var(--texto);
+  border-radius: 16px;
+  padding: 13px 15px;
+  font-size: 1rem;
+  margin-top: 8px;
+  outline: none;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: var(--verde);
+}
+
+.resultado {
+  text-align: center;
+}
+
+.medidor {
+  width: 100%;
+  height: 18px;
+  background: rgba(31, 138, 69, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 14px 0;
+}
+
+#barraRisco {
+  width: 0%;
+  height: 100%;
+  background: var(--verde);
+  border-radius: 999px;
+  transition: 0.35s;
+}
+
+.resultado h3 {
+  font-size: 3.4rem;
+  color: var(--verde-escuro);
+  margin: 12px 0;
+}
+
+body.escuro .resultado h3 {
+  color: #ffffff;
+}
+
+.resultado h4 {
+  color: var(--verde-escuro);
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+}
+
+body.escuro .resultado h4 {
+  color: #ffffff;
+}
+
+.resultado p {
+  color: var(--texto-suave);
+}
+
+.campo-visual {
+  margin: 22px auto 0;
+  max-width: 280px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.campo-visual span {
+  height: 44px;
+  border-radius: 12px;
+  background: var(--verde-claro);
+  transition: 0.3s;
+}
+
+.campo-visual.moderado span {
+  background: var(--amarelo);
+}
+
+.campo-visual.alto span {
+  background: var(--laranja);
+}
+
+.campo-visual.critico span {
+  background: var(--vermelho);
+}
+
+.historico {
+  margin-top: 26px;
+  text-align: center;
+}
+
+#listaHistorico {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  text-align: left;
+}
+
+#listaHistorico li {
+  background: var(--fundo-claro);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--texto);
+}
+
+.selo-risco {
+  display: inline-block;
+  padding: 5px 11px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  margin-top: 8px;
+}
+
+.baixo {
+  background: var(--verde);
+}
+
+.moderado {
+  background: var(--laranja);
+}
+
+.alto {
+  background: var(--vermelho);
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.indicadores article {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 22px;
+  text-align: center;
+  padding: 24px;
+  box-shadow: 0 14px 34px var(--sombra);
+}
+
+.indicadores h3 {
+  color: var(--verde);
+  font-size: 2rem;
+}
+
+.indicadores p {
+  color: var(--texto-suave);
+  font-weight: 800;
+}
+
+.recomendacoes {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.recomendacoes ul {
+  padding-left: 20px;
+}
+
+.recomendacoes li {
+  margin-bottom: 8px;
+}
+
+.quiz-card {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.quiz-topo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--verde);
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+
+#perguntaQuiz {
+  color: var(--verde-escuro);
+  font-size: 1.45rem;
+  margin-bottom: 18px;
+}
+
+body.escuro #perguntaQuiz {
+  color: #ffffff;
+}
+
+.opcoes {
+  display: grid;
+  gap: 12px;
+}
+
+.opcoes button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--borda);
+  background: var(--fundo-claro);
+  color: var(--texto);
+  border-radius: 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: 0.25s;
+}
+
+.opcoes button:hover {
+  transform: translateX(4px);
+  border-color: var(--verde);
+}
+
+.opcoes button.correta {
+  border-color: var(--verde);
+  background: rgba(31, 138, 69, 0.16);
+}
+
+.opcoes button.errada {
+  border-color: var(--vermelho);
+  background: rgba(180, 35, 24, 0.14);
+}
+
+.feedback {
+  min-height: 30px;
+  font-weight: 900;
+  margin: 16px 0;
+}
+
+.formulario {
+  max-width: 850px;
+  margin: 0 auto;
+  display: grid;
+  gap: 14px;
+}
+
+.formulario label {
+  color: var(--verde-escuro);
+  font-weight: 900;
+}
+
+.formulario .botao {
+  width: fit-content;
+}
+
+.relatorio-box {
+  background: var(--fundo-claro);
+  color: var(--verde-escuro);
+  border: 1px dashed var(--verde);
+  border-radius: 18px;
+  padding: 18px;
+  font-weight: 800;
+  min-height: 100px;
+}
+
+body.escuro .relatorio-box {
+  color: var(--texto);
+}
+
+.observacao-final {
+  margin-top: 24px;
+}
+
+.rodape {
+  background: var(--verde-escuro);
+  color: #ffffff;
+  text-align: center;
+  padding: 28px 12px;
+}
+
+.btn-topo {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--verde);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: none;
+  box-shadow: 0 10px 28px var(--sombra);
+}
+
+.btn-topo.aparecer {
+  display: block;
+}
+
+@media (max-width: 980px) {
+  .area-menu {
+    flex-direction: column;
+    padding: 14px 0;
   }
 
-  const item = document.createElement("li");
+  .hero {
+    min-height: auto;
+    padding: 70px 0;
+  }
 
-  item.innerHTML =
-    "<strong>Análise " + contadorAnalises + "</strong><br>" +
-    "Risco calculado: " + riscoAtual + "%<br>" +
-    "Umidade: " + umidade.value + "% | " +
-    "Temperatura: " + temperatura.value + "°C | " +
-    "Folhas: " + folhas.value + "% | " +
-    "Preservação: " + preservacao.value + "%<br>" +
-    "<span class='selo-risco " + nivel.classe + "'>" + nivel.titulo + "</span>";
+  .hero-grid,
+  .simulador-grid {
+    grid-template-columns: 1fr;
+  }
 
-  historicoLista.prepend(item);
+  .cards,
+  .creditos-grid,
+  .passos,
+  .indicadores {
+    grid-template-columns: 1fr 1fr;
+  }
 
-  const totalItens = historicoLista.querySelectorAll("li");
+  .hero-texto {
+    text-align: center;
+  }
 
-  if (totalItens.length > 5) {
-    historicoLista.removeChild(totalItens[totalItens.length - 1]);
+  .hero p,
+  .grupo-botoes {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
   }
 }
 
-function carregarPergunta() {
-  respondeu = false;
-  feedbackQuiz.textContent = "";
-  opcoes.innerHTML = "";
-
-  const item = perguntasQuiz[perguntaAtual];
-
-  quizProgresso.textContent = "Pergunta " + (perguntaAtual + 1) + " de " + perguntasQuiz.length;
-  quizPontos.textContent = pontos;
-  pergunta.textContent = item.pergunta;
-
-  item.opcoes.forEach(function (texto, indice) {
-    const botao = document.createElement("button");
-    botao.type = "button";
-    botao.textContent = texto;
-
-    botao.addEventListener("click", function () {
-      responderQuiz(indice, botao);
-    });
-
-    opcoes.appendChild(botao);
-  });
-}
-
-function responderQuiz(indice, botaoClicado) {
-  if (respondeu) {
-    return;
+@media (max-width: 620px) {
+  .menu {
+    gap: 9px;
   }
 
-  respondeu = true;
-
-  const item = perguntasQuiz[perguntaAtual];
-  const botoes = opcoes.querySelectorAll("button");
-
-  botoes.forEach(function (botao, i) {
-    botao.disabled = true;
-
-    if (i === item.correta) {
-      botao.classList.add("correta");
-    }
-  });
-
-  if (indice === item.correta) {
-    pontos++;
-    quizPontos.textContent = pontos;
-    feedbackQuiz.textContent = "Resposta correta! Muito bem.";
-    feedbackQuiz.style.color = "#246b38";
-  } else {
-    botaoClicado.classList.add("errada");
-    feedbackQuiz.textContent = "Resposta incorreta. Observe a alternativa destacada.";
-    feedbackQuiz.style.color = "#b42318";
-  }
-}
-
-function proxima() {
-  if (perguntaAtual < perguntasQuiz.length - 1) {
-    perguntaAtual++;
-    carregarPergunta();
-  } else {
-    pergunta.textContent = "Quiz finalizado!";
-    opcoes.innerHTML = "";
-    feedbackQuiz.style.color = "#1f7a3a";
-    feedbackQuiz.textContent =
-      "Você fez " + pontos + " ponto(s) de " + perguntasQuiz.length + ".";
-  }
-}
-
-function reiniciarQuizFuncao() {
-  perguntaAtual = 0;
-  pontos = 0;
-  carregarPergunta();
-}
-
-function gerarTextoRelatorio() {
-  const nome = nomeEquipe.value.trim();
-  const acao = acaoSustentavel.value;
-
-  if (nome === "" || acao === "") {
-    textoRelatorio.textContent =
-      "Preencha o nome da equipe e escolha uma ação sustentável para gerar o relatório.";
-    return;
+  .menu a {
+    font-size: 0.84rem;
   }
 
-  textoRelatorio.textContent =
-    "Nós, da equipe " + nome + ", assumimos o compromisso de " + acao +
-    ". O projeto AgroGuardião 360 mostra que a tecnologia pode ajudar o campo a produzir com responsabilidade, " +
-    "protegendo a água, o solo e o futuro das próximas gerações.";
-}
-
-btnFonte.addEventListener("click", function () {
-  document.body.classList.toggle("fonte-grande");
-});
-
-window.addEventListener("scroll", function () {
-  if (window.scrollY > 350) {
-    btnTopo.classList.add("aparecer");
-  } else {
-    btnTopo.classList.remove("aparecer");
+  .secao {
+    padding: 58px 0;
   }
-});
 
-btnTopo.addEventListener("click", function () {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-});
+  .hero h1 {
+    font-size: 2.25rem;
+  }
 
-[umidade, temperatura, folhas, preservacao].forEach(function (controle) {
-  controle.addEventListener("input", atualizarSimulador);
-});
+  .cards,
+  .creditos-grid,
+  .passos,
+  .indicadores {
+    grid-template-columns: 1fr;
+  }
 
-resetar.addEventListener("click", reiniciarAnalise);
-salvarAnalise.addEventListener("click", salvarHistoricoAnalise);
-proximaPergunta.addEventListener("click", proxima);
-reiniciarQuiz.addEventListener("click", reiniciarQuizFuncao);
-gerarRelatorio.addEventListener("click", gerarTextoRelatorio);
+  .botao,
+  .formulario .botao {
+    width: 100%;
+  }
 
-atualizarSimulador();
-carregarPergunta();
+  .quiz-topo {
+    flex-direction: column;
+  }
+
+  .card,
+  .controles,
+  .resultado,
+  .historico,
+  .recomendacoes,
+  .quiz-card,
+  .formulario,
+  .observacao-final {
+    padding: 20px;
+  }
+}
