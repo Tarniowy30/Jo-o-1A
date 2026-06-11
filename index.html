@@ -1,10 +1,11 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgroGuardião 360 - Agrinho 2026</title>
   <meta name="description" content="Projeto Agrinho 2026 sobre agro forte, futuro sustentável e equilíbrio entre produção e meio ambiente.">
+
   <link rel="stylesheet" href="CSS/style.css">
 </head>
 
@@ -28,12 +29,12 @@
     </nav>
 
     <section class="hero">
-      <div>
+      <div class="hero-texto">
         <p class="etiqueta">Agrinho 2026 • Programação Front-End</p>
 
         <h1>Agro forte, futuro sustentável</h1>
 
-        <p class="texto-hero">
+        <p>
           Um projeto interativo sobre como a tecnologia pode ajudar o campo a produzir
           mais, economizar recursos naturais e proteger o meio ambiente.
         </p>
@@ -44,19 +45,17 @@
         </div>
       </div>
 
-      <div class="visual-campo" aria-label="Ilustração do campo monitorado">
+      <div class="visual-campo">
         <div class="sol"></div>
         <div class="nuvem"></div>
-
         <div class="lavoura">
           <span></span>
           <span></span>
           <span></span>
           <span></span>
         </div>
-
         <div class="robo">🤖</div>
-        <div class="pulso pulso1"></div>
+        <div class="pulso"></div>
         <div class="pulso pulso2"></div>
       </div>
     </section>
@@ -149,7 +148,9 @@
           <label for="preservacao">Preservação ambiental: <strong id="valorPreservacao">60</strong>%</label>
           <input type="range" id="preservacao" min="0" max="100" value="60">
 
-          <button id="botaoResetar" type="button" class="botao principal">Reiniciar análise</button>
+          <button id="botaoResetar" type="button" class="botao principal">
+            Reiniciar análise
+          </button>
         </div>
 
         <article class="resultado">
@@ -227,7 +228,7 @@
 
         <div id="opcoesQuiz" class="opcoes"></div>
 
-        <p id="feedbackQuiz" class="feedback" aria-live="polite"></p>
+        <p id="feedbackQuiz" class="feedback"></p>
 
         <div class="botoes">
           <button id="proximaPergunta" type="button" class="botao principal">
@@ -264,7 +265,7 @@
         <button type="submit" class="botao claro-botao">Gerar relatório</button>
       </form>
 
-      <article id="relatorioGerado" class="relatorio-gerado" aria-live="polite">
+      <article id="relatorioGerado" class="relatorio-gerado">
         O relatório aparecerá aqui.
       </article>
     </section>
@@ -274,9 +275,7 @@
     <p>Projeto Agrinho 2026 • AgroGuardião 360 • HTML, CSS e JavaScript</p>
   </footer>
 
-  <button id="voltarTopo" type="button" class="voltar-topo" title="Voltar ao topo">
-    ↑
-  </button>
+  <button id="voltarTopo" type="button" class="voltar-topo">↑</button>
 
   <script src="js/script.js"></script>
 </body>
